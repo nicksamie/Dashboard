@@ -1,19 +1,21 @@
 @extends('layouts.master')
-    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
-    <link href="plugins/datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
-    <!-- Theme style -->
-    <link href="bootstrap/css/AdminLTE.min.css" rel="stylesheet" type="text/css" />
-    <!-- AdminLTE Skins. Choose a skin from the css/skins 
-         folder instead of downloading all of them to reduce the load. -->
-    <link href="bootstrap/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
-
+@section('title')
+  Schema Tables
+@stop
 @section('message')
   @if (session('status'))
        <div class="alert alert-success" id="alert-message">
           <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
           <h4>  <i class="icon fa fa-check"></i> Success</h4>
           {{ session('status') }}
+      </div>
+  @endif
+  @if (session('Warning'))
+       <div class="alert alert-warning" id="alert-message">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <h4>  <i class="icon fa fa-check"></i><strong>Warning!</strong></h4>
+          {{ session('Warning') }}
       </div>
   @endif
 @stop
@@ -23,130 +25,277 @@
                   <h1>Schema tables </h1> 
                   <ol class="breadcrumb">
                     <li><a href="{{URL::to('/home')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-                    <li><a href="#">Tables</a></li>
+                    <li><a href="{{URL::to('/schema')}}">Tables</a></li>
                     <li class="active">Schema tables</li>
                   </ol>
     </section>
 @stop 
 
-@section('schematable')
+@section('content')
+     <!-- Main content -->
     <section class="content">
           <div class="row">
             <div class="col-xs-12">
-
               <div class="box">
-                <div class="box-header">
+              </div><!-- /.box-header -->
                     <div class="btn-group">
-                        <a href="{{URL::to('/schema')}}"><button class="btn btn-success">Refresh Table</button></a>
+                        <a href="{{URL::to('/schema')}}"><button class="btn btn-success"><i class="glyphicon glyphicon-refresh"> Refresh</i></button></a>
                     </div>
-                </div><!-- /.box-header -->
+                      <span id="warning-msg"></span>
+                    </div>
                 <div class="box-body">
       
-      {!! Form::open(array('url' => 'schema/delete', 'method' => 'DELETE', 'id' => 'deleteSelected')) !!} 
-                  <table id="schematable" class="table table-bordered table-striped">
+      {!! Form::open(array('url' => 'schema/delete', 'method' => 'DELETE', 'id' => 'formdeleteSelected')) !!} 
+                  <table id="schematable" class="table table-striped table-bordered" cellspacing="0" width="100%" >
                     <thead>
-                      <tr>
-                        <th><input type="checkbox" id="cbkCheckAll"/> Select All</th>
-                        <th>Database Name</th>
-                        <th>Schema Name</th>
-                        <th>Size in GB</th>
-                        <th>Hold Yes/No?</th>
-                        <th>Hold By</th>
-                        <th>Hold Till Date</th>
+                      <tr id="schema_row">
+                        <th width="3%"><input type="checkbox" id="cbkCheckAll"/> Select All</th>
+                        <th width="5%">Schema Name</th>
+                        <th width="5%">Size in GB</th>
+                        <th width="5%">No. of Tables</th>
+                        <th width="5%">Hold Yes/No?</th>
+                        <th width="5%">Hold By</th>
+                        <th width="5%">Hold Till Date</th>
+                        <th width="3%">Database Name</th>
+                        <th width="15%">--Actions--</th>
                       </tr>
                     </thead>
                    <tbody>
                       @foreach($list as $row)
-                        <tr>
-                            <td><input type="checkbox" class="checkbox1" name="schemaname[]" data-id="cb" value="{{$row->schema_name}}"></td>
-                            <td>{{$row->database_name}}</td>
-                            <td>{{$row->schema_name}}</td>
-                            <td>{{$row->size_in_gb}}</td>
-                            <td>
-                              @if (($row->hold_status) === 1)
-                                  Yes
-                              @else
-                                  No
-                              @endif
+                        <tr class = "schema_row">
+                            <td width="3%">
+                              <input type="checkbox" id="checkbox1" class="checkbox1" name="schemaname[]" data-id="cb" value="{{$row->schema_name}}">
                             </td>
-                           <td>{{$row->hold_by}}</td>
-                           <td>{{$row->hold_till_date}}</td>
-                           
+                            <td width="5%" id="row_schema_name">{{$row->schema_name}}</td>
+                            <td width="5%" id="row_size_in_gb">{{$row->size_in_gb}}</td>
+                            <td width="5%">--</td>
+                            <td width="5%">
+                                <div class="row_hold_status" id="row_hold_status">
+                                  @if (($row->hold_status) == 1)
+                                      Yes
+                                  @else
+                                      No
+                                  @endif
+                                </div>
+                                <div class="edit_hold_status">
+                                  <select id="edit_selectBox" class="selectBox" name="new_hold_status" selected="">
+                                    <option id="s_yes" value="yes" >Yes</option>
+                                    <option id="s_no" value="no" >No</option>
+                                  </select>
+                                </div>
+                            </td>
+                            <td width="5%">
+                              <div class="row_hold_by">{{$row->hold_by}}</div>
+                              <input type="text" name="new_hold_by" id="input_hold_by" class="input_hold_by" placeholder ="{{$row->hold_by}}" value="{{$row->hold_by}}" />
+                            </td>
+                            <td width="5%">
+                              <div class="row_hold_date"> {{$row->hold_till_date}}</div>
+                              <input id="datepicker" type="text" name="new_hold_date" class="datepicker" data-provide="datepicker" placeholder="{{$row->hold_till_date}}" value="{{$row->hold_till_date}}">
+                            </td>
+                            <td width="3%" id="row_database_name">{{$row->database_name}}</td>
+                            <td width="15%">
+                              <a href="{{$row->schema_name}}" class="btnRowEdit" ><span class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit </span></a>
+                              <a href="{{$row->schema_name}}" class="btnRowDelete" ><span class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-remove" style="color:red";></i> Delete </span></a> 
+                              <a href="{{url('schema/viewtables/'.$row->schema_name)}}" class="btnRowViewTables"><span class="btn btn-xs btn-primary">View Tables</span></a>
+
+                              <a href="{{$row->schema_name}}" class="btnEditSave"> <span style="font-color:green"; class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-save"> Save </i></span></a>
+                              <a href="" class="btnEditCancel"><span class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-ban-circle"> Cancel </i></span></a>
+                            </td>
                         </tr>
                       @endforeach
                    </tbody>
-                    <!-- <tfoot>
-                      <tr>
-                        <th>Schema Name</th>
-                        <th>Hold Yes/No?</th>
-                        <th>Hold By</th>
-                        <th>Hold Till Date</th>
-                      </tr>
-                    </tfoot> -->
                   </table>
                   <div class="form-group">
-                    {!! Form::submit('Delete Selected', ['id'=>'delete_selected','class' => 'btn btn-primary']) !!}
-                </div>
-        {!! Form::close() !!}
+                    {!! Form::submit('Delete Selected Schema', ['id'=>'delete_selected','class' => 'btn btn-primary']) !!}
+                  </div>
+      {!! Form::close() !!}
 
                 </div>
-              </div>
             </div>
-          </div>
-        </section>
-@stop   
- <!-- jQuery 2.1.4 -->
+    </section>
+
     <script src="plugins/jQuery/jQuery-2.1.4.min.js"></script>
-    <!-- Bootstrap 3.3.2 JS -->
     <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-    <!-- DATA TABES SCRIPT -->
     <script src="plugins/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
-
     <script src="plugins/datatables/dataTables.bootstrap.min.js" type="text/javascript"></script>
-    <!-- SlimScroll -->
-    <script src="plugins/slimScroll/jquery.slimscroll.min.js" type="text/javascript"></script>
-    <!-- AdminLTE App -->
-    <script src="dist/js/app.min.js" type="text/javascript"></script>
-    <!-- AdminLTE for demo purposes -->
-    <script src="dist/js/demo.js" type="text/javascript"></script>
-    <!-- page script -->
-    <script>
-      $(function () {
-        $('#schematable').DataTable({
-          "paging": true,
-          "lengthChange": false,
-          "searching": false,
-          "ordering": true,
-          "info": true,
-          "autoWidth": false
-        });
-      });
 
-      $(document).ready(function(){
-      $("#delete_particular_row").click(function(){
-        if (!confirm("Do you want to delete this particular row?")){
-          return false;
-        }
-        });
-      });
+    <script type="text/javascript" src="plugins/popupjs/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="plugins/popupjs/jquery.leanModal.min.js"></script>
 
-      $(document).ready(function(){
-      $("#delete_selected").click(function(){
-        if (!confirm("Do you want to delete all selected items?")){
-          return false;
-        }
-        });
+<script type="text/javascript">
+      $(document).ready(function() {
+          var table = $('#schematable').DataTable();
+          $('#schematable tbody').on( 'click', 'tr', function () {
+              if ( $(this).hasClass('selected') ) {
+                  $(this).removeClass('selected');
+              }
+              else {
+                  table.$('tr.selected').removeClass('selected');
+                  $(this).addClass('selected');
+              }
+          } );
       });
 
       $(document).ready(function(){ 
-      $("#cbkCheckAll").change(function(){
-        $(".checkbox1").prop('checked', $(this).prop("checked"));
-        });
+        $("#cbkCheckAll").change(function(){
+          $(".checkbox1").prop('checked', $(this).prop("checked"));
+          });
       });
 
-     $(".alert alert-success").alert();
-        window.setTimeout(function() { $(".alert alert-success").alert('close'); }, 2000);
+      $(document).ready(function(){
+        var no_of_checkedbox;
+        $(".checkbox1").on("click",function(){
+          no_of_checkedbox = $('input[name="schemaname[]"]:checked').length;
+        })
+      });
+
+        $("#delete_selected").on("click",function(){
+          no_of_checkedbox = $('input[name="schemaname[]"]:checked').length;
+          if ($('input[name="schemaname[]"]:checked').length <= 0){
+            alert("You must check at least 1 box!!!!!");
+            return false; 
+          } else {
+            var $row = $(this).closest(".checkbox1 tr");
+            if (!confirm("Are you sure you want to delete these " + no_of_checkedbox + " selected items ?")){
+            return false;
+            }
+          }
+        });
 </script>
 
-  
+<script>
+  $(document).ready(function() {
+    $('.row_hold_by').show();
+    $('.row_hold_date').show();
+
+    $('.edit_hold_status').hide();
+    $('.input_hold_by').hide();
+    $('.datepicker').hide();
+
+    $('.btnEditSave').hide();
+    $('.btnEditCancel').hide();
  
+    $('.datepicker').datepicker({
+          format: "yyyy/mm/dd"
+    });  
+    $(".datepicker").datepicker("setDate", new Date());
+    $('.datepicker').on('changeDate', function(ev){
+          $(this).datepicker('hide');
+    });
+
+    $(".btnRowEdit").click(function(event) {
+        var href = $(this).attr('href');
+        //alert(href);
+        event.preventDefault();
+
+        var $row = $(this).closest("tr");
+        alert("Edit ?? " + href);
+
+        $row.find('.btnRowEdit').hide();
+        $row.find('.btnRowDelete').hide();
+        $row.find('.btnRowViewTables').hide();
+
+        $row.find('.btnEditSave').show();
+        $row.find('.btnEditCancel').show();
+
+        $row.find('.row_hold_status').hide();
+        $row.find('.row_hold_by').hide();
+        $row.find('.row_hold_date').hide();
+
+        $row.find('.edit_hold_status').show();
+
+        $row.find('.input_hold_by').show();
+        $row.find('.datepicker').show();
+    });
+
+    $('.btnRowDelete').click(function (event){ 
+        event.preventDefault(); 
+        var schemaname = $(this).attr('href');
+                if (confirm("Are you sure you want to delete schema : " + schemaname + " ???")){
+                    $.ajax({
+                        type: "GET",
+                        url: "{{URL::to('/schema/deletesinglerow') }}",
+                        data: {
+                          selectedSchema: schemaname
+                        },
+                        beforeSend: function() {
+                          $('#response').html("<img src='/images/opc-ajax-loading-black.gif' />");
+                        },
+                        success: function ( data ) {
+                            alert('Successfully Deleted Schema : ' + schemaname + ' !!! :(');
+                              setTimeout(function() {
+                              window.location.href = "{{URL::to('/schema') }}";
+                            }, 100);
+                        },
+                        error: function() {
+                          alert('ERROR!! Could not be Deleted');
+                        }
+                    });
+                } else {
+                    return false;
+                }
+    });
+
+    $(".btnEditSave").click(function(event){
+        event.preventDefault(); 
+        var schemaname = $(this).attr('href');
+                alert("You are about to make changes!!");
+
+                var $row = $(this).closest("tr");
+
+                var _selectedSchema = schemaname;
+                var _hold_status = $row.find("#edit_selectBox").val();
+                var _hold_by = $row.find("#input_hold_by").val();
+                var _date = $row.find("#datepicker").val();
+
+                alert("Schema Name "+_selectedSchema);
+                alert('hold_status : '+_hold_status);
+                alert('hold by '+_hold_by);
+                alert('date : '+_date);
+
+                if(confirm("Are you sure you want to Edit & Save?")){
+                    $.ajax({
+                        type: "GET",
+                       // url: "/laravel/dashboard/public/schema/update",
+                        url: "{{URL::to('/schema/update') }}",
+                        data: {
+                          selectedSchema: _selectedSchema, hold_status: _hold_status, hold_by: _hold_by, date: _date
+                        },
+                        beforeSend: function() {
+                          $('#response').html("<img src='/images/opc-ajax-loading-black.gif' />");
+                        },
+                        success: function ( data ) {
+                            alert('Successfully Updated table !! :(');
+                              setTimeout(function() {
+                              window.location.href = "{{URL::to('/schema') }}";
+                            }, 100);
+                        },
+                        error: function() {
+                          alert('ERROR!! Could not be Updated');
+                        }
+                    });
+                } else {
+                    return false;
+                }
+    });
+
+    $(".btnEditCancel").click(function(event){
+          $('.row_hold_status').show();
+          $('.row_hold_by').show();
+          $('.row_hold_date').show();
+
+          $('.edit_hold_status').hide();
+          $('.input_hold_by').hide();
+          $('.datepicker').hide();
+
+          $('.btnRowEdit').show();
+          $('.btnRowDelete').show();
+          $('.btnRowViewTables').show();
+
+          $('.btnEditSave').hide();
+          $('.btnEditCancel').hide();
+    });
+  });
+</script>
+
+@stop

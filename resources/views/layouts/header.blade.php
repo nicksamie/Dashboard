@@ -9,7 +9,7 @@
         <!-- Header Navbar: style can be found in header.less -->
         <nav class="navbar navbar-static-top" role="navigation">
           <!-- Sidebar toggle button-->
-          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button"><i class="glyphicon glyphicon-th-large"></i>
+          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button"><!-- <i class="glyphicon glyphicon-th-large"></i> -->
             <span class="sr-only">Toggle navigation</span>
           </a>
           <div class="navbar-custom-menu">
@@ -20,7 +20,7 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 <i class="glyphicon glyphicon-user"></i>
                   <!-- <img src="#" class="user-image" alt="User Image"/> -->
-                  <span class="hidden-xs">TEST DBA</span>
+                  <span class="hidden-xs">{{Auth::user()->firstname }}</span>
                 </a>
                 <ul class="dropdown-menu">
                   <!-- User image -->

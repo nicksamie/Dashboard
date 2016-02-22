@@ -5,55 +5,91 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use View;
+use Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //$users = DB::table('users')->get();
         $usersdata = DB::table('users')->select('id','firstname', 'lastname','email')->get();
         return view('users.showusers')->with('data',$usersdata);
     }
 
-    public function addNewUser(){
+    public function addNewUser()
+    {
         return view('users.addnewuser');
     }
 
-    public function showProfile()
+    public function showProfile($id)
     {
-         return view('users.profile');//->with('$id');//, ['user' => User::findOrFail($id)]);
+        //$userinfo = User::findorfail($id);
+        //$user = DB::table('users')->where('name', 'John')->first();
+        $userinfo = DB::table('users')->where('id',$id)->get();
+        
+        return view('users.profile')->with('info',$userinfo);//->with('$id');//, ['user' => User::findOrFail($id)]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function saveNewUser()
     {
         $firstname = Input::get('firstname');
         $lastname = Input::get('lastname');
         $email = Input::get('email');
+        $password = Input::get('password');
+        $role = Input::get('role');
 
-        $inputs = $array = [
-            ['firstname' => $firstname],
-            ['lastname' => $lastname],
-            ['email' => $email]
-        ];
-        echo ('User Received');
-        $inputs = Input::all();
-        User::create( $inputs );
- 
-        return Redirect::route('users.index')->with('message', 'User created');
+        if(!empty($firstname) && !empty($lastname) && !empty($email) && !empty($password) )
+        {
+            DB::table('users')->insert([
+                ['firstname' => $firstname,
+                'lastname' => $lastname,
+                'email' => $email,
+                'password' => bcrypt('$password')]
+            ]);
+        } else {
+            return redirect()->action('UserController@index')->with('warning', 'User creation Failed');    
+        }
+        return redirect()->action('UserController@index')->with('message', 'User created');
     }
+
+    public function getEditUser($id)
+    {
+        $usersdata = DB::table('users')->select('id','firstname', 'lastname','email','password')->where('id',$id)->get();
+        return view('users.edituser')->with('data',$usersdata);
+    }
+
+    public function postEditUser()
+    {
+        $firstname = Input::get('firstname');
+        $lastname = Input::get('lastname');
+        $email = Input::get('email');
+        $password = Input::get('password');
+        $role = Input::get('role');
+
+        if(!empty($firstname) && !empty($lastname) && !empty($email) && !empty($password) )
+        {
+            DB::table('users')
+                ->where('id',$id)
+                ->update([
+                    ['firstname' => $firstname,
+                    'lastname' => $lastname,
+                    'email' => $email,
+                    'password' => bcrypt('$password')]
+                    ]);
+        } else {
+            return redirect()->action('UserController@index')->with('warning', 'User Update Failed');    
+        }
+        return redirect()->action('UserController@index')->with('message', 'User Updated !!');
+    }
+
+    public function deleteParticularUserById($id){
+        if(DB::table('users')->where('id',$id)->delete())
+            return redirect('user')->with('message', 'User Deleted!!');
+        else
+            return redirect('user')->with('warning', 'User could not be Deleted!!');
+    }
+    
     /**
      * Show the form for editing the specified resource.
      *

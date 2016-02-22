@@ -2,7 +2,6 @@
 @extends('layouts.master')
 @section('schematable')
        <!-- Content Wrapper. Contains page content -->
-      <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <section class="content-header">
           <h1>
@@ -26,7 +25,7 @@
                   <h3 class="box-title">Data Table With Full Features</h3>
                 </div><!-- /.box-header -->
                 <div class="box-body">
-                  <table id="schematable" class="table table-bordered table-striped">
+                  <table id="example1" class="table table-bordered table-striped">
                     <thead>
                       <tr>
                         <th>Schema Name</th>
@@ -179,7 +178,8 @@
     <!-- page script -->
     <script type="text/javascript">
       $(function () {
-        $('#schematable').DataTable({
+         $("#example1").DataTable();
+        $('#example2').DataTable({
           "paging": true,
           "lengthChange": false,
           "searching": false,

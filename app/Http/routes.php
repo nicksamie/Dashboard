@@ -1,17 +1,26 @@
 <?php
-
-Route::get('testschema', function(){
-	return view('schema.show');
+Route::get('/', function () {
+    return view('auth.login');
 });
 
-Route::Delete('delete_row', ['uses' =>'SchemaController@deleteParticularRow']);
-
+Route::get('/a/b/c', function () {
+    return view('pages.dashboard');
+});
 Route::Delete('schema/delete', ['as' =>'delete', 'uses' =>'SchemaController@deleteSelectedRows']);
+Route::GET('schema/update', ['uses' => 'SchemaController@updateChangesSchema']);
+Route::GET('schema/hold', ['uses' => 'SchemaController@holdSchema']);
+Route::GET('schema/viewtables/{schemaname}',['uses' => 'SchemaController@viewTables']);
 
-Route::controllers([
-  'auth' => 'Auth\AuthController',
-  'password' => 'Auth\PasswordController',
-]);
+Route::GET('schema/deletesinglerow', ['uses' => 'SchemaController@deleteSingleSelectedRow']);
+
+
+// User Routes
+Route::get('/add-new-user', ['uses' => 'UserController@addNewUser']);
+Route::post('/user/addnewuser' ,['uses' => 'UserController@saveNewUser']);
+Route::get('/user/profile/{id}', ['uses' => 'UserController@showProfile']);
+Route::get('/user/delete/{id}', ['uses' =>'UserController@deleteParticularUserById']);
+Route::get('/user/edit/{id}', ['uses' =>'UserController@getEditUser']);
+Route::post('/user/edit', ['uses' =>'UserController@postEditUser']);
 
 // Provide controller methods with object instead of ID
 Route::model('user', 'User');
@@ -23,44 +32,14 @@ Route::resource('user', 'UserController');
 
 // Authentication routes...
 Route::get('auth/login', 'Auth\AuthController@getLogin');
-Route::post('auth/login', 'Auth\AuthController@postLogin');
-Route::get('auth/logout', 'Auth\AuthController@getLogout');
+Route::post('auth/login', 'Auth\AuthController@authenticate');
+Route::get('auth/logout', 'Auth\AuthController@doLogout');
 
 // Registration routes...
 Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
 
-// User Routes
-Route::get('/user/add', [ 'as' => 'profile','uses' => 'UserController@addNewUser']);
-Route::get('/user/profile/{id}', ['uses' => 'UserController@showProfile']);
-
-//Route::get('user/profile', 'UserController@showProfile');
-/*Route::post('/task', 'UserController@store');
-Route::delete('/task/{task}', 'UserController@destroy');
-
-// Task Routes
-Route::get('/sch', 'SchemaController@index');
-Route::post('/task', 'SchemaController@store');
-Route::delete('/task/{task}', 'SchemaController@destroy');
-*/
-
-
-/*Route::get('/hom', function () {
-   
-});*/
-/*Route::controllers([
-   'password' => 'Auth\PasswordController',
+Route::controllers([
+  'auth' => 'Auth\AuthController',
+  'password' => 'Auth\PasswordController',
 ]);
-
-
-
-Route::get('/user/add', 'UserController@createNewUser');
-//Route::get('user/{id}', 'UserController@showProfile');
-*/
-
-//Route::get('user/show', ['uses' => 'UserController@showUsers']);
-//Route::get('user/show', ['uses' => 'UserController@getShowUsers']);
-//Route::get('user/add', 'UserController@create');
-//
-
-//Route::get('user/{id}', 'UserController@showProfile');

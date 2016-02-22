@@ -9,7 +9,7 @@
               <!-- <img src="#" class="img-circle" alt="User Image" /> -->
             </div>
             <div class="pull-left info">
-              <p>ADMIN DBA</p>
+              <p>{{Auth::user()->firstname }}</p>
 
              <!--  <a href="#"><i class="fa fa-circle text-success"></i> Online</a> -->
             </div>
@@ -45,6 +45,8 @@
             </li>
 
             <li ><a href="{{URL::to('/schema')}}"> Schema Table</a></li>
+
+            <!-- <li ><a href="{{URL::to('/s')}}"> Schema 2nd method</a></li> -->
             
             <li ><a href="#">About</a></li> <!-- {{URL::to('/about')}} -->
             <li ><a href="#">Contact</a></li> <!-- {{URL::to('/contact')}} -->

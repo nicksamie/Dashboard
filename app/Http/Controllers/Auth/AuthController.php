@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use Input;
 use Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -23,7 +27,9 @@ class AuthController extends Controller
 
     use AuthenticatesAndRegistersUsers, ThrottlesLogins;
 
-    private $redirectTo = '/';
+    private $redirectTo = '/home';
+
+    protected $loginPath = '/login';
     
     /**
      * Create a new authentication controller instance.
@@ -43,9 +49,20 @@ class AuthController extends Controller
      */
     public function authenticate()
     {
+        $email = Input::get('email');
+        $password = Input::get('password');
+        
         if (Auth::attempt(['email' => $email, 'password' => $password]))
         {
-            return redirect('pages.home');
+            Session::flash('flash_message',' You have logged in Sucessfully!');
+            return redirect()->intended('home');
+            //return redirect('home');
+        } else if (Auth::check()) {
+            // The user is logged in...
+            return redirect()->intended('home');
+        } else if (!Auth::attempt(['email' => $email, 'password' => $password])){
+            //Session::flash('flash_message',' Failed!');
+            return redirect()->back()->with('flash_message','Invalid Email or Password!!');
         }
     }
 
@@ -72,5 +89,29 @@ class AuthController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
+    }
+
+    public function doLogin()
+    {
+        $credentials = [
+            //'email' => $request->input('email'),
+            //'password' => $request->input('password'),
+            'email' => Input::get('email'),
+            'password' => Input::get('password'),
+        ];
+
+        if(Auth::attempt($credentials)){
+                //Session::flash('flash_error','Something went wrong with your credentials');
+                //Session::flash('flash_message',' Failed!');
+                //return redirect()->back();
+        } else{
+            Session::flash('flash_message',' You have logged in Sucessfully!');
+            //return redirect('home');
+        }
+    }
+
+    public function doLogout(){
+        Auth::logout();
+        return redirect('/');
     }
 }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>Popup Login and Register</title>
+<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.leanModal.min.js"></script>
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" />
+<link type="text/css" rel="stylesheet" href="css/style.css" />
+
+<body>
+<div class="container">
+	<a id="modal_trigger" href="#modal" class="btn">Click here to Login or register</a>
+
+	<div id="modal" class="popupContainer" style="display:none;">
+		<header class="popupHeader">
+			<span class="header_title">Edit Changes</span>
+			<span class="modal_close"><i class="fa fa-times"></i></span>
+		</header>
+		
+		<section class="popupBody">
+			<!-- Register Form -->
+			<div class="edit_schema_row">
+				<form>
+					<label>Schema Name</label>
+					<div class="edit_table_schema_name"></div>
+					<br />
+
+					<label>Size in Gb</label>
+					<div class="edit_sizegb"></div>
+					<br />
+
+					<label>Hold Yes/No</label>
+					<div class="edit_hold_status"></div>
+					<br />
+
+					<label>Hold By</label>
+					<div class="edit_hold_by"></div>
+					<br />
+
+					<label>Hold Till Date</label>
+					<div class="edit_hold_till_date"></div>
+					<br />
+
+					<!-- <div class="savebtn"><span style="color:green"; id="btnEditSave" class="btn btn-link">
+					<i class="glyphicon glyphicon-save"> Save </i></span></div> -->
+
+					<div class="action_btns">
+						<div class="one_half"><a href="#" class="btn "><i class="fa fa-angle-double-left"></i> Reset</a></div>
+						<div class="one_half last" id="btnEditSave"><a href="#" class="btn btn_red">Save</a></div>
+					</div>
+				</form>
+			</div>
+		</section>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$("#modal_trigger").leanModal({top : 200, overlay : 0.6, closeButton: ".modal_close" });
+
+</script>
+
+</body>
+</html>
